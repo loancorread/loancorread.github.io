@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡A Jugar con Inglés! 📚✨</title>
+    <!-- Incluye Tailwind CSS para un estilo moderno y responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Un color de fondo suave y amigable */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            background-image: linear-gradient(to top right, #a7e0ff, #e0f2fe); /* Degradado suave */
+        }
+        .game-container {
+            background-color: #ffffff;
+            border-radius: 25px; /* Bordes más redondeados */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1); /* Sombra más pronunciada */
+            padding: 30px;
+            max-width: 800px; /* Ancho máximo para el contenedor del juego */
+            width: 100%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .question-card, .category-selection-screen {
+            background-color: #e0f2fe; /* Azul claro para las tarjetas */
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+        }
+        .option-button, .category-button {
+            background-color: #81c784; /* Verde amigable para los botones */
+            color: white;
+            padding: 15px 25px;
+            margin: 10px;
+            border: none;
+            border-radius: 15px; /* Bordes redondeados */
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+        .option-button:hover, .category-button:hover {
+            background-color: #66bb6a; /* Verde más oscuro al pasar el ratón */
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+        .option-button:active, .category-button:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+        }
+        .correct-answer {
+            background-color: #66bb6a !important; /* Verde brillante para respuesta correcta */
+            border: 3px solid #388e3c;
+        }
+        .wrong-answer {
+            background-color: #ef5350 !important; /* Rojo para respuesta incorrecta */
+            border: 3px solid #d32f2f;
+        }
+        .next-button, .start-button {
+            background-color: #42a5f5; /* Azul vibrante para el botón Siguiente/Empezar */
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        .next-button:hover, .start-button:hover {
+            background-color: #2196f3;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+        .next-button:active, .start-button:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+        }
+        .score-display {
+            background-color: #fff9c4; /* Amarillo claro para la puntuación */
+            border-radius: 15px;
+            padding: 15px 20px;
+            margin-top: 20px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ffb300; /* Naranja para el texto de puntuación */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            display: inline-block; /* Para que ocupe solo el ancho necesario */
+        }
+        .message-box {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.3s ease;
+        }
+        .message-box.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        .message-content {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 90%;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .message-box.show .message-content {
+            transform: scale(1);
+        }
+        .message-title {
+            font-size: 2.5rem; /* Título más grande */
+            font-weight: 800;
+            color: #4CAF50; /* Verde para éxito, rojo para error */
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        .message-text {
+            font-size: 1.4rem;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        .message-button {
+            background-color: #42a5f5;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+        .message-button:hover {
+            background-color: #2196f3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        .category-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #3f51b5; /* Azul oscuro para el título de categoría */
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body class="selection:bg-pink-300 selection:text-pink-900">
+    <div class="game-container">
+        <h1 class="text-5xl font-extrabold text-blue-700 mb-8 tracking-tight drop-shadow-lg">
+            ¡A Jugar con Inglés! 🚀
+        </h1>
+        <p id="category-title" class="category-title"></p>
+
+        <!-- Pantalla de inicio -->
+        <div id="game-start-screen" class="flex flex-col items-center">
+            <button id="start-game-btn" class="start-button mb-8">
+                ¡Empezar a Jugar!
+            </button>
+        </div>
+
+        <!-- Pantalla de selección de categorías -->
+        <div id="category-selection-screen" class="category-selection-screen hidden flex flex-col items-center">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">Elige una categoría para practicar:</h2>
+            <div id="category-buttons-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Los botones de categorías se insertarán aquí por JS -->
+            </div>
+            <button id="back-to-start-btn" class="next-button mt-6">
+                Regresar al Inicio
+            </button>
+        </div>
+
+        <!-- Tarjeta de preguntas -->
+        <div id="question-card" class="question-card hidden">
+            <p id="question-text" class="text-3xl font-bold text-gray-800 mb-6"></p>
+            <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Los botones de opciones se insertarán aquí por JS -->
+            </div>
+            <button id="next-question-btn" class="next-button mt-6 hidden">
+                Siguiente Pregunta
+            </button>
+        </div>
+
+        <div id="score-area" class="score-display mt-8">
+            Puntuación: <span id="current-score">0</span>
+        </div>
+    </div>
+
+    <!-- Message Box (Custom Modal) -->
+    <div id="message-box" class="message-box">
+        <div class="message-content">
+            <h3 id="message-title" class="message-title"></h3>
+            <p id="message-text" class="message-text"></p>
+            <button id="message-button" class="message-button">Entendido</button>
+        </div>
+    </div>
+
+    <script>
+        // Objeto con todas las preguntas organizadas por categoría
+        const allQuestions = {
+            likeDontLike: [
+                { id: 1, question: "I _____ pizza (😋 A mí me gusta la pizza).", options: ["like", "likes", "don't like"], answer: "like" },
+                { id: 2, question: "They _____ to swim (🏊‍♀️ A ellos les gusta nadar).", options: ["like", "don't like", "likes"], answer: "like" },
+                { id: 3, question: "We _____ eat vegetables (🤢 A nosotros NO nos gustan los vegetales).", options: ["like", "don't like", "likes"], answer: "don't like" },
+                { id: 4, question: "Do you _____ apples (🍎 ¿A ti te gustan las manzanas?).", options: ["like", "likes", "don't like"], answer: "like" },
+                { id: 5, question: "I _____ to run in the park (🏃‍♂️ A mí me gusta correr en el parque).", options: ["like", "don't like", "likes"], answer: "like" },
+                { id: 6, question: "We _____ spiders (😨 A nosotros NO nos gustan las arañas).", options: ["like", "don't like", "likes"], answer: "don't like" },
+                { id: 7, question: "Do they _____ playing soccer (⚽ ¿A ellos les gusta jugar fútbol?).", options: ["like", "likes", "don't like"], answer: "like" },
+                { id: 8, question: "You _____ to sing loud (🎤🎶 A ti te gusta cantar fuerte).", options: ["like", "don't like", "likes"], answer: "like" }
+            ],
+            likesDoesntLike: [
+                { id: 9, question: "He _____ bananas (🍌 A él LE gustan las bananas).", options: ["likes", "like", "doesn't like"], answer: "likes" },
+                { id: 10, question: "She _____ reading books (📖 A ella LE gusta leer libros).", options: ["likes", "like", "doesn't like"], answer: "likes" },
+                { id: 11, question: "My dog _____ to bark loudly (🐶  A mi perro LE gusta ladrar fuerte).", options: ["likes", "like", "doesn't like"], answer: "likes" },
+                { id: 12, question: "He _____ milk (🥛🤢 A él NO LE gusta la leche).", options: ["likes", "like", "doesn't like"], answer: "doesn't like" },
+                { id: 13, question: "She _____ math (✖️➖ A ella NO LE gustan las matemáticas).", options: ["likes", "like", "doesn't like"], answer: "doesn't like" },
+                { id: 14, question: "The cat _____ to sleep all day (😴🐈 Al gato LE gusta dormir todo el día).", options: ["likes", "like", "doesn't like"], answer: "likes" },
+                { id: 15, question: "My brother _____ to share his toys (Sharing is hard! 😩 A mi hermano NO LE gusta compartir sus juguetes).", options: ["likes", "like", "doesn't like"], answer: "doesn't like" },
+                { id: 16, question: "Does he _____ ice cream (🍦 ¿A él LE gusta el helado?).", options: ["likes", "like", "doesn't like"], answer: "like" }
+            ],
+            canCant: [
+                { id: 17, question: "Birds _____ fly high in the sky (🐦⬆️ Los pájaros pueden volar alto en el cielo).", options: ["can", "can't"], answer: "can" },
+                { id: 18, question: "A fish _____ walk on land (🐟❌ Un pez NO puede caminar en tierra).", options: ["can", "can't"], answer: "can't" },
+                { id: 19, question: "He _____ play soccer very well (⚽️🏆 Él puede jugar fútbol muy bien).", options: ["can", "can't"], answer: "can" },
+                { id: 20, question: "I _____ swim very fast (🏊‍♂️💨 Yo puedo nadar muy rápido).", options: ["can", "can't"], answer: "can" },
+                { id: 21, question: "I _____ jump to the moon (🚀❌ Yo NO puedo saltar a la luna).", options: ["can", "can't"], answer: "can't" },
+                { id: 22, question: "She _____ play the piano (🎹🎵 Ella puede tocar el piano).", options: ["can", "can't"], answer: "can" },
+                { id: 23, question: "You _____ ride a bike (🚲 Tú puedes montar en bicicleta).", options: ["can", "can't"], answer: "can" },
+                { id: 24, question: "They _____ sing a song beautifully (🎶🌟 Ellos pueden cantar una canción hermosamente).", options: ["can", "can't"], answer: "can" }
+            ]
+        };
+
+        // Mapeo de categorías a títulos más amigables
+        const categoryTitles = {
+            likeDontLike: "Me gusta / No me gusta (I, You, We, They)",
+            likesDoesntLike: "Le gusta / No le gusta (He, She, It)",
+            canCant: "Puedo / No puedo (Habilidades)"
+        };
+
+        // Elementos del DOM
+        const startGameBtn = document.getElementById('start-game-btn');
+        const gameStartScreen = document.getElementById('game-start-screen');
+        const categorySelectionScreen = document.getElementById('category-selection-screen');
+        const categoryButtonsContainer = document.getElementById('category-buttons-container');
+        const backToStartBtn = document.getElementById('back-to-start-btn'); // Nuevo botón
+        const questionCard = document.getElementById('question-card');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextQuestionBtn = document.getElementById('next-question-btn');
+        const currentScoreSpan = document.getElementById('current-score');
+        const categoryTitleElement = document.getElementById('category-title');
+
+        const messageBox = document.getElementById('message-box');
+        const messageTitle = document.getElementById('message-title');
+        const messageText = document.getElementById('message-text');
+        const messageButton = document.getElementById('message-button');
+
+        // Variables de estado del juego
+        let score = 0;
+        let selectedCategoryName = ''; // Almacena el nombre de la categoría seleccionada
+        let currentQuestionIndex = 0;
+        let currentQuestions = []; // Preguntas de la categoría actual
+        let answeredCorrectly = false; // Para evitar puntuar varias veces la misma pregunta
+
+        /**
+         * Muestra un mensaje personalizado en un modal.
+         * @param {string} title - El título del mensaje.
+         * @param {string} text - El contenido del mensaje.
+         * @param {string} type - 'success' o 'error' para el estilo del título.
+         * @param {function} callback - Función a ejecutar al cerrar el mensaje.
+         */
+        function showMessage(title, text, type = 'info', callback = null) {
+            messageTitle.textContent = title;
+            messageText.textContent = text;
+            messageTitle.style.color = type === 'success' ? '#4CAF50' : (type === 'error' ? '#EF5350' : '#42a5f5');
+            messageBox.classList.add('show');
+
+            // Limpiar listener anterior para evitar múltiples llamadas
+            messageButton.onclick = null;
+            messageButton.onclick = () => {
+                messageBox.classList.remove('show');
+                if (callback) {
+                    callback();
+                }
+            };
+        }
+
+        /**
+         * Muestra la pantalla de inicio del juego.
+         */
+        function showStartScreen() {
+            gameStartScreen.classList.remove('hidden');
+            categorySelectionScreen.classList.add('hidden');
+            questionCard.classList.add('hidden');
+            categoryTitleElement.textContent = "";
+            score = 0; // Reiniciar puntuación al volver a la pantalla de inicio
+            currentScoreSpan.textContent = score;
+        }
+
+        /**
+         * Muestra la pantalla de selección de categorías.
+         */
+        function showCategorySelectionScreen() {
+            gameStartScreen.classList.add('hidden');
+            questionCard.classList.add('hidden');
+            categorySelectionScreen.classList.remove('hidden');
+            categoryTitleElement.textContent = "";
+
+            categoryButtonsContainer.innerHTML = ''; // Limpiar botones anteriores
+            Object.keys(allQuestions).forEach(categoryKey => {
+                const button = document.createElement('button');
+                button.textContent = categoryTitles[categoryKey];
+                button.classList.add('category-button');
+                button.addEventListener('click', () => selectCategory(categoryKey));
+                categoryButtonsContainer.appendChild(button);
+            });
+        }
+
+        /**
+         * Selecciona una categoría y comienza el juego para esa categoría.
+         * @param {string} categoryKey - La clave de la categoría seleccionada (ej. 'likeDontLike').
+         */
+        function selectCategory(categoryKey) {
+            selectedCategoryName = categoryKey;
+            currentQuestions = shuffleArray([...allQuestions[selectedCategoryName]]);
+            currentQuestionIndex = 0;
+            answeredCorrectly = false; // Reiniciar para la nueva categoría
+
+            categorySelectionScreen.classList.add('hidden');
+            questionCard.classList.remove('hidden');
+            categoryTitleElement.textContent = categoryTitles[selectedCategoryName];
+            displayQuestion();
+        }
+
+        /**
+         * Mezcla un array de forma aleatoria (algoritmo Fisher-Yates).
+         * @param {Array} array - El array a mezclar.
+         * @returns {Array} Un nuevo array mezclado.
+         */
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        /**
+         * Muestra la pregunta actual y sus opciones.
+         */
+        function displayQuestion() {
+            answeredCorrectly = false; // Reiniciar para cada nueva pregunta
+            nextQuestionBtn.classList.add('hidden');
+            optionsContainer.innerHTML = ''; // Limpiar opciones anteriores
+
+            if (currentQuestionIndex < currentQuestions.length) {
+                const questionData = currentQuestions[currentQuestionIndex];
+                questionText.textContent = questionData.question;
+
+                // Mezclar las opciones para que no siempre estén en el mismo orden
+                const shuffledOptions = shuffleArray([...questionData.options]);
+
+                shuffledOptions.forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.classList.add('option-button');
+                    button.addEventListener('click', () => checkAnswer(button, option, questionData.answer));
+                    optionsContainer.appendChild(button);
+                });
+
+                // Habilitar todos los botones de opción
+                document.querySelectorAll('.option-button').forEach(btn => btn.disabled = false);
+
+            } else {
+                // Todas las preguntas de la categoría actual han sido respondidas
+                endCategory();
+            }
+        }
+
+        /**
+         * Genera una explicación sencilla para una respuesta incorrecta.
+         * @param {string} categoryName - El nombre de la categoría actual.
+         * @param {string} correctAnswer - La respuesta correcta.
+         * @returns {string} La explicación para el niño.
+         */
+        function generateExplanation(categoryName, correctAnswer) {
+            let explanation = `La respuesta correcta era "${correctAnswer}". ¡No te rindas! `;
+            switch (categoryName) {
+                case 'likeDontLike':
+                    if (correctAnswer === 'like') {
+                        explanation += "Recuerda, con 'I', 'you', 'we' y 'they', usamos 'like' para decir que nos gusta algo.";
+                    } else if (correctAnswer === "don't like") {
+                        explanation += "Con 'I', 'you', 'we' y 'they', para decir que NO nos gusta algo, usamos 'don't like'.";
+                    }
+                    break;
+                case 'likesDoesntLike':
+                    if (correctAnswer === 'likes') {
+                        explanation += "¡Ojo! Con 'he', 'she' y 'it', cuando a alguien LE gusta algo, añadimos una 's' a 'like': 'likes'.";
+                    } else if (correctAnswer === "doesn't like") {
+                        explanation += "Cuando a 'he', 'she' o 'it' NO le gusta algo, decimos 'doesn't like'.";
+                    }
+                    break;
+                case 'canCant':
+                    if (correctAnswer === 'can') {
+                        explanation += "'Can' significa que puedes hacer algo, ¡como un pájaro puede volar!";
+                    } else if (correctAnswer === "can't") {
+                        explanation += "'Can't' significa que NO puedes hacer algo, ¡como un pez no puede caminar en tierra!";
+                    }
+                    break;
+            }
+            return explanation;
+        }
+
+        /**
+         * Comprueba si la respuesta seleccionada es correcta.
+         * @param {HTMLButtonElement} selectedButton - El botón que el usuario seleccionó.
+         * @param {string} selectedOption - El texto de la opción seleccionada.
+         * @param {string} correctAnswer - La respuesta correcta.
+         */
+        function checkAnswer(selectedButton, selectedOption, correctAnswer) {
+            // Deshabilitar todos los botones de opción después de seleccionar uno
+            document.querySelectorAll('.option-button').forEach(btn => btn.disabled = true);
+
+            if (selectedOption === correctAnswer) {
+                selectedButton.classList.add('correct-answer');
+                if (!answeredCorrectly) {
+                    score++;
+                    currentScoreSpan.textContent = score;
+                    answeredCorrectly = true; // Marca como respondida correctamente para esta pregunta
+                }
+                showMessage('¡Correcto! 🎉', '¡Excelente trabajo! Sigue así.', 'success', () => {
+                    nextQuestionBtn.classList.remove('hidden');
+                });
+            } else {
+                selectedButton.classList.add('wrong-answer');
+                // Resaltar la respuesta correcta
+                Array.from(optionsContainer.children).find(btn => btn.textContent === correctAnswer)?.classList.add('correct-answer');
+                const explanation = generateExplanation(selectedCategoryName, correctAnswer);
+                showMessage('¡Incorrecto! 🙁', explanation, 'error', () => {
+                    nextQuestionBtn.classList.remove('hidden');
+                });
+            }
+        }
+
+        /**
+         * Avanza a la siguiente pregunta.
+         */
+        function nextQuestion() {
+            currentQuestionIndex++;
+            displayQuestion();
+        }
+
+        /**
+         * Finaliza la categoría actual y regresa al menú de selección.
+         */
+        function endCategory() {
+            questionCard.classList.add('hidden');
+            nextQuestionBtn.classList.add('hidden');
+            categoryTitleElement.textContent = "";
+
+            showMessage(
+                '¡Categoría Terminada! 🎊',
+                `Has completado los ejercicios de "${categoryTitles[selectedCategoryName]}". Tu puntuación actual es: ${score}. ¡Sigue así!`,
+                'success',
+                () => {
+                    showCategorySelectionScreen(); // Regresar a la selección de categorías
+                }
+            );
+        }
+
+        // Event Listeners
+        startGameBtn.addEventListener('click', showCategorySelectionScreen);
+        nextQuestionBtn.addEventListener('click', nextQuestion);
+        backToStartBtn.addEventListener('click', showStartScreen);
+
+        // Inicializar el juego (mostrar botón de inicio)
+        document.addEventListener('DOMContentLoaded', () => {
+            showStartScreen(); // Mostrar la pantalla de inicio al cargar la página
+        });
+    </script>
+</body>
+</html>
+ 
